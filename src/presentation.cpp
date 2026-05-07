@@ -122,4 +122,85 @@ void renderToolbar(GuiApplicationState& applicationState) {
                              GuiApplicationState::SEARCH_QUERY_BUFFER_SIZE);
 }
 
+
+// draw the contacts table; honours the live search filter
+void renderContactTable(GuiApplicationState& applicationState) {
+    const std::string searchQueryString = applicationState.searchQueryBuffer;
+    const std::vector<Contact> visibleContacts = searchQueryString.empty()
+        ? applicationState.contactList
+        : findContactsByNameLinear(applicationState.contactList, searchQueryString);
+
+    ImGui::Text("Showing %zu of %zu contact(s).",
+                visibleContacts.size(), applicationState.contactList.size());
+
+    const ImGuiTableFlags contactTableFlags =
+        ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg |
+        ImGuiTableFlags_Resizable | ImGuiTableFlags_ScrollY;
+    const ImVec2 contactTableSize(0.0f, 260.0f);
+
+    if (!ImGui::BeginTable("ContactsTable", 6, contactTableFlags, contactTableSize)) {
+        return;
+    }
+
+    ImGui::TableSetupScrollFreeze(0, 1);
+    ImGui::TableSetupColumn("Id");
+    ImGui::TableSetupColumn("First Name");
+    ImGui::TableSetupColumn("Last Name");
+    ImGui::TableSetupColumn("Phone Number");
+    ImGui::TableSetupColumn("Email Address");
+    ImGui::TableSetupColumn("Actions");
+    ImGui::TableHeadersRow();
+
+    int pendingDeleteContactId = GuiApplicationState::NO_CONTACT_BEING_EDITED;
+
+    for (const auto& visibleContact : visibleContacts) {
+        ImGui::PushID(visibleContact.contactId);
+        ImGui::TableNextRow();
+
+        ImGui::TableSetColumnIndex(0); ImGui::Text("%d", visibleContact.contactId);
+        ImGui::TableSetColumnIndex(1); ImGui::TextUnformatted(visibleContact.firstName.c_str());
+        ImGui::TableSetColumnIndex(2); ImGui::TextUnformatted(visibleContact.lastName.c_str());
+        ImGui::TableSetColumnIndex(3); ImGui::TextUnformatted(visibleContact.phoneNumber.c_str());
+        ImGui::TableSetColumnIndex(4); ImGui::TextUnformatted(visibleContact.emailAddress.c_str());
+
+        ImGui::TableSetColumnIndex(5);
+        if (ImGui::SmallButton("Edit")) {
+            applicationState.editingContactId = visibleContact.contactId;
+            copyStringIntoFixedBuffer(applicationState.firstNameInputBuffer,
+                                      GuiApplicationState::FIRST_NAME_BUFFER_SIZE,
+                                      visibleContact.firstName);
+            copyStringIntoFixedBuffer(applicationState.lastNameInputBuffer,
+                                      GuiApplicationState::LAST_NAME_BUFFER_SIZE,
+                                      visibleContact.lastName);
+            copyStringIntoFixedBuffer(applicationState.phoneNumberInputBuffer,
+                                      GuiApplicationState::PHONE_NUMBER_BUFFER_SIZE,
+                                      visibleContact.phoneNumber);
+            copyStringIntoFixedBuffer(applicationState.emailAddressInputBuffer,
+                                      GuiApplicationState::EMAIL_ADDRESS_BUFFER_SIZE,
+                                      visibleContact.emailAddress);
+        }
+        ImGui::SameLine();
+        if (ImGui::SmallButton("Delete")) {
+            pendingDeleteContactId = visibleContact.contactId;
+        }
+        ImGui::PopID();
+    }
+
+    ImGui::EndTable();
+
+    // delete after the loop so we don't mutate while iterating the filtered copy
+    if (pendingDeleteContactId != GuiApplicationState::NO_CONTACT_BEING_EDITED) {
+        const bool removalSucceeded =
+            removeContactById(applicationState.contactList, pendingDeleteContactId);
+        if (removalSucceeded) {
+            postStatusMessage(applicationState, "contact deleted", false);
+            if (applicationState.editingContactId == pendingDeleteContactId) {
+                clearAddEditFormBuffers(applicationState);
+            }
+        } else {
+            postStatusMessage(applicationState, "failed to delete contact", true);
+        }
+    }
+}
+
 }
