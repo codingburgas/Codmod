@@ -62,4 +62,36 @@ void renderStatusBar(const GuiApplicationState& applicationState) {
     ImGui::TextColored(messageColor, "%s", applicationState.statusMessage.c_str());
 }
 
+
+// draw the add/edit form; flag the caller if the user clicked Save
+void renderAddEditForm(GuiApplicationState& applicationState,
+                       bool& outShouldSave,
+                       Contact& outContactToSave) {
+    outShouldSave = false;
+
+    const bool isEditingExistingContact =
+        (applicationState.editingContactId != GuiApplicationState::NO_CONTACT_BEING_EDITED);
+    ImGui::SeparatorText(isEditingExistingContact ? "Edit Contact" : "Add Contact");
+
+    ImGui::InputText("First Name", applicationState.firstNameInputBuffer,
+                     GuiApplicationState::FIRST_NAME_BUFFER_SIZE);
+    ImGui::InputText("Last Name", applicationState.lastNameInputBuffer,
+                     GuiApplicationState::LAST_NAME_BUFFER_SIZE);
+    ImGui::InputText("Phone Number", applicationState.phoneNumberInputBuffer,
+                     GuiApplicationState::PHONE_NUMBER_BUFFER_SIZE);
+    ImGui::InputText("Email Address", applicationState.emailAddressInputBuffer,
+                     GuiApplicationState::EMAIL_ADDRESS_BUFFER_SIZE);
+
+    if (ImGui::Button(isEditingExistingContact ? "Save Changes" : "Add Contact")) {
+        outContactToSave = buildContactFromInputBuffers(applicationState);
+        outShouldSave = true;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("Clear Form")) {
+        clearAddEditFormBuffers(applicationState);
+    }
+}
+
+
+
 }
