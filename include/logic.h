@@ -31,3 +31,8 @@ void sortContactList(std::vector<Contact>& contactList, SortCriterion criterion)
 std::vector<Contact> findContactsByNameLinear(
     const std::vector<Contact>& contactList,
     const std::string& nameQuery);
+    int findContactIndexByIdBinary(const std::vector<Contact>& sortedByIdList,
+                               int targetContactId);
+
+int countContactsRecursive(const std::vector<Contact>& contactList,
+                           std::size_t currentIndex = 0);
