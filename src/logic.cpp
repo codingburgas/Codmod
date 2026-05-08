@@ -24,3 +24,10 @@ bool isContactLessByName(const Contact& leftContact, const Contact& rightContact
     }
     return toLowerCopy(leftContact.firstName) < toLowerCopy(rightContact.firstName);
 }
+// order contacts by raw phone string
+bool isContactLessByPhoneNumber(const Contact& leftContact,
+                                const Contact& rightContact) {
+    return leftContact.phoneNumber < rightContact.phoneNumber;
+}
+
+using ContactComparator = bool (*)(const Contact&, const Contact&);
