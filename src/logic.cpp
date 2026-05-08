@@ -47,3 +47,14 @@ int partitionContactRange(std::vector<Contact>& contactList,
     std::swap(contactList[storeIndex + 1], contactList[highIndex]);
     return storeIndex + 1;
 }
+// classic recursive quick sort over [low, high]
+void quickSortContactRange(std::vector<Contact>& contactList,
+                           int lowIndex,
+                           int highIndex,
+                           ContactComparator isLess) {
+    if (lowIndex < highIndex) {
+        const int pivotIndex = partitionContactRange(contactList, lowIndex, highIndex, isLess);
+        quickSortContactRange(contactList, lowIndex, pivotIndex - 1, isLess);
+        quickSortContactRange(contactList, pivotIndex + 1, highIndex, isLess);
+    }
+}
