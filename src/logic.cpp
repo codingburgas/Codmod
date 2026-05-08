@@ -104,3 +104,16 @@ bool updateExistingContact(std::vector<Contact>& contactList,
     errorMessage = "contact id was not found";
     return false;
 }
+// drop the matching id; false if nothing matched
+bool removeContactById(std::vector<Contact>& contactList, int targetContactId) {
+    const auto removalIterator = std::remove_if(
+        contactList.begin(), contactList.end(),
+        [targetContactId](const Contact& candidateContact) {
+            return candidateContact.contactId == targetContactId;
+        });
+    if (removalIterator == contactList.end()) {
+        return false;
+    }
+    contactList.erase(removalIterator, contactList.end());
+    return true;
+}
