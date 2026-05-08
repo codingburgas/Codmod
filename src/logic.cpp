@@ -117,3 +117,13 @@ bool removeContactById(std::vector<Contact>& contactList, int targetContactId) {
     contactList.erase(removalIterator, contactList.end());
     return true;
 }
+// quick-sort entry point, picks the right comparator
+void sortContactList(std::vector<Contact>& contactList, SortCriterion criterion) {
+    if (contactList.size() < 2) {
+        return;
+    }
+    const ContactComparator isLess = (criterion == SortCriterion::ByName)
+        ? &isContactLessByName
+        : &isContactLessByPhoneNumber;
+    quickSortContactRange(contactList, 0, static_cast<int>(contactList.size()) - 1, isLess);
+}
