@@ -84,3 +84,23 @@ bool addNewContact(std::vector<Contact>& contactList,
     contactList.push_back(contactWithAssignedId);
     return true;
 }
+// find by id and overwrite the editable fields
+bool updateExistingContact(std::vector<Contact>& contactList,
+                           const Contact& updatedContact,
+                           std::string& errorMessage) {
+    errorMessage = validateContact(updatedContact);
+    if (!errorMessage.empty()) {
+        return false;
+    }
+    for (auto& existingContact : contactList) {
+        if (existingContact.contactId == updatedContact.contactId) {
+            existingContact.firstName    = updatedContact.firstName;
+            existingContact.lastName     = updatedContact.lastName;
+            existingContact.phoneNumber  = updatedContact.phoneNumber;
+            existingContact.emailAddress = updatedContact.emailAddress;
+            return true;
+        }
+    }
+    errorMessage = "contact id was not found";
+    return false;
+}
