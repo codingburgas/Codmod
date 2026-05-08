@@ -127,3 +127,18 @@ void sortContactList(std::vector<Contact>& contactList, SortCriterion criterion)
         : &isContactLessByPhoneNumber;
     quickSortContactRange(contactList, 0, static_cast<int>(contactList.size()) - 1, isLess);
 }
+// linear search: substring match against first or last name
+std::vector<Contact> findContactsByNameLinear(
+        const std::vector<Contact>& contactList,
+        const std::string& nameQuery) {
+    const std::string loweredQuery = toLowerCopy(nameQuery);
+    std::vector<Contact> matchedContacts;
+    for (const auto& candidateContact : contactList) {
+        if (loweredQuery.empty() ||
+            toLowerCopy(candidateContact.firstName).find(loweredQuery) != std::string::npos ||
+            toLowerCopy(candidateContact.lastName).find(loweredQuery) != std::string::npos) {
+            matchedContacts.push_back(candidateContact);
+        }
+    }
+    return matchedContacts;
+} 
