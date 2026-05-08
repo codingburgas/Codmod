@@ -142,3 +142,22 @@ std::vector<Contact> findContactsByNameLinear(
     }
     return matchedContacts;
 } 
+// binary search; list MUST be sorted by contactId ascending
+int findContactIndexByIdBinary(const std::vector<Contact>& sortedByIdList,
+                               int targetContactId) {
+    int lowIndex  = 0;
+    int highIndex = static_cast<int>(sortedByIdList.size()) - 1;
+    while (lowIndex <= highIndex) {
+        const int middleIndex = lowIndex + (highIndex - lowIndex) / 2;
+        const int middleContactId = sortedByIdList[middleIndex].contactId;
+        if (middleContactId == targetContactId) {
+            return middleIndex;
+        }
+        if (middleContactId < targetContactId) {
+            lowIndex = middleIndex + 1;
+        } else {
+            highIndex = middleIndex - 1;
+        }
+    }
+    return -1;
+}
