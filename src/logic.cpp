@@ -169,3 +169,16 @@ int countContactsRecursive(const std::vector<Contact>& contactList,
     }
     return 1 + countContactsRecursive(contactList, currentIndex + 1);
 }
+// recursive count restricted to a phone-number prefix
+int countContactsWithPhonePrefixRecursive(
+        const std::vector<Contact>& contactList,
+        const std::string& phonePrefix,
+        std::size_t currentIndex) {
+    if (currentIndex >= contactList.size()) {
+        return 0;
+    }
+    const bool prefixMatches =
+        contactList[currentIndex].phoneNumber.rfind(phonePrefix, 0) == 0;
+    return (prefixMatches ? 1 : 0) +
+           countContactsWithPhonePrefixRecursive(contactList, phonePrefix, currentIndex + 1);
+}
