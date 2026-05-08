@@ -31,3 +31,19 @@ bool isContactLessByPhoneNumber(const Contact& leftContact,
 }
 
 using ContactComparator = bool (*)(const Contact&, const Contact&);
+// Lomuto partition; pivot = element at high
+int partitionContactRange(std::vector<Contact>& contactList,
+                          int lowIndex,
+                          int highIndex,
+                          ContactComparator isLess) {
+    const Contact pivotContact = contactList[highIndex];
+    int storeIndex = lowIndex - 1;
+    for (int scanIndex = lowIndex; scanIndex < highIndex; ++scanIndex) {
+        if (isLess(contactList[scanIndex], pivotContact)) {
+            ++storeIndex;
+            std::swap(contactList[storeIndex], contactList[scanIndex]);
+        }
+    }
+    std::swap(contactList[storeIndex + 1], contactList[highIndex]);
+    return storeIndex + 1;
+}
