@@ -283,3 +283,52 @@ namespace
     }
   }
 }
+
+// load contacts from disk and reset the form
+void initializeApplicationState(GuiApplicationState &applicationState,
+                                const std::string &dataFilePath)
+{
+  applicationState.dataFilePath = dataFilePath;
+  loadAllContacts(applicationState.dataFilePath, applicationState.contactList);
+  clearAddEditFormBuffers(applicationState);
+  applicationState.statusMessage.clear();
+  applicationState.statusMessageIsError = false;
+}
+
+// build one ImGui frame with toolbar, table, form, and recursion panel
+void renderMainApplicationWindow(GuiApplicationState &applicationState)
+{
+  const ImGuiViewport *mainViewport = ImGui::GetMainViewport();
+  ImGui::SetNextWindowPos(mainViewport->WorkPos);
+  ImGui::SetNextWindowSize(mainViewport->WorkSize);
+
+  const ImGuiWindowFlags mainWindowFlags =
+      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
+      ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar |
+      ImGuiWindowFlags_NoBringToFrontOnFocus;
+
+  ImGui::Begin("Contact Management System", nullptr, mainWindowFlags);
+
+  ImGui::TextUnformatted("Contact Management System");
+  ImGui::Separator();
+
+  renderToolbar(applicationState);
+  renderStatusBar(applicationState);
+
+  ImGui::Spacing();
+  renderContactTable(applicationState);
+
+  ImGui::Spacing();
+  bool shouldSaveSubmittedContact = false;
+  Contact submittedContact;
+  renderAddEditForm(applicationState, shouldSaveSubmittedContact, submittedContact);
+  if (shouldSaveSubmittedContact)
+  {
+    handleAddOrUpdateSubmission(applicationState, submittedContact);
+  }
+
+  ImGui::Spacing();
+  renderRecursionPanel(applicationState);
+
+  ImGui::End();
+}
